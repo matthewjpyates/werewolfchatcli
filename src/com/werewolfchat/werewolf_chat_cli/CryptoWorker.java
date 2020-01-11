@@ -85,10 +85,12 @@ public class CryptoWorker {
                         "in interactive mode over https with no proxy to the public server is assumed unless you specify a different type\n" +
                         "the poxy is assumed to be localhost unless otherwise specified by --Proxy_Server=my.proxy.server.url\n" +
                         "TOR:\n" +
+                        "to start interactive mode over TOR assuming default settings: -i --TOR_Use_Defaults\n"+
                         "to start interactive mode over TOR without a proxy: -i --TOR_No_Proxy\n" +
                         "to start interactive mode over TOR: -i --TOR_Proxy_SOCKS=9050\n" +
                         "to start interactive mode over TOR: -i --TOR_Proxy_HTTP=8118\n" +
                         "I2P:\n" +
+                        "to start interactive mode over TOR assuming default settings: -i --I2P_Use_Defaults\n"+
                         "to start interactive mode over I2P without a proxy: -i --I2P_No_Proxy\n" +
                         "to start interactive mode over I2P: -i --I2P_Proxy_SOCKS=4444\n" +
                         "to start interactive mode over I2P: -i --I2P_Proxy_HTTP=4444\n" +
@@ -1124,7 +1126,17 @@ public class CryptoWorker {
                 } else {
                     worker.printToStdOutAndToFile("improper formatting for message to send with " + value);
                 }
-            }else {
+            } else if(value.equals("--TOR_Use_Defaults")) { //--TOR_Use_Defaults
+                	worker.setProxyPort(9050); // Default Socks port for TOR 
+                    worker.setServerUrl(Utility.torAddress);
+                    worker.setProxyType(PROXY_TYPE_SOCKS);
+                } 
+            else if(value.equals("--I2P_Use_Defaults")) { //--TOR_Use_Defaults
+            	worker.setProxyPort(4444); // Default HTTP port for I2P HTTP tunnels 
+                worker.setServerUrl(Utility.i2pAddress);
+                worker.setProxyType(PROXY_TYPE_HTTP);
+            } 
+            else {
                 worker.printToStdOutAndToFile("Did not recognise " + value + " as an argument");
             }
         }
