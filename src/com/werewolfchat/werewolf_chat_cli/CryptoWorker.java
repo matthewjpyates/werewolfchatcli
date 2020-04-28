@@ -60,6 +60,9 @@ public class CryptoWorker {
         this.ntruEnc = new NtruEncrypt(ENCRYPTION_PARAMS);
     }
 
+    public CryptoWorker(EncryptionParameters enc_params) {
+        this.ntruEnc = new NtruEncrypt(enc_params);
+    }
 
     public String convertPlainTextStringToEncryptedHexString(EncryptionPublicKey pubKey, String plainText) {
         return bytesToHex(this.ntruEnc.encrypt(plainText.getBytes(), pubKey));
@@ -75,9 +78,13 @@ public class CryptoWorker {
         System.out.println(
                 "Cryptoworker.jar Version " + returnVersionStr() + "\n" +
                         "to print this help message -h or --help\n" +
-                        "to encrypt: -e key_in_hex string_to_encrypt\n" +
-                        "to encrypt: --encrypt key_in_hex string_to_encrypt\n" +
+                        "to encrypt: -e public_key_in_hex string_to_encrypt\n" +
+                        "to encrypt: --encrypt public_key_in_hex string_to_encrypt\n" +
+                        "to decrypt: -d public_key_in_hex private_key_in_hex string_to_decrypt_in_hex\n" +
+                        "to decrypt: --decrypt public_key_in_hex private_key_in_hex string_to_decrypt_in_hex\n" +
                         "to print the version: -v\n" +
+                        "to run the test mode: -t\n" + 
+                        "to run the test mode: --test\n" +
                         "to start interactive mode: -i\n" +
                         "to start interactive mode with a key file: -i --File=/path/to/your/key/file\n" +
                         "to start interactive mode with a specified user id (will overwrite keyfile): -i  --User_ID=username\n"+
@@ -116,7 +123,7 @@ public class CryptoWorker {
     }
 
     public static String returnVersionStr() {
-        return "0.2";
+        return "0.4";
     }
 
     public static void printVersion() {
@@ -178,6 +185,27 @@ public class CryptoWorker {
         return convertPlainTextStringToEncryptedHexString(epk, thingToEncrypt);
     }
 
+    public String decryptStr(String pubKeyInHex, String privKeyInHex, String thingToDecrypt) {
+
+        EncryptionKeyPair key_pair =  new EncryptionKeyPair(pubKeyInHex, privKeyInHex);
+        return convertEncryptedHexStringToPlainTextString( key_pair, thingToDecrypt);
+    }
+    
+    public void runTestsAndPrint()
+    {
+    	EncryptionKeyPair test_kp =  this.ntruEnc.generateKeyPair();
+    	String plainText = Utility.makeRandomString();
+    	String cypherText = bytesToHex(this.ntruEnc.encrypt(plainText.getBytes(), test_kp.getPublic()));
+    	String decryptedText = convertEncryptedHexStringToPlainTextString(test_kp, cypherText); 
+    	System.out.println("Public Key: " + bytesToHex(test_kp.getPublic().getEncoded()));
+    	System.out.println("Private Key: " + bytesToHex(test_kp.getPrivate().getEncoded()));
+    	System.out.println("Plain Text: " + plainText);
+    	System.out.println("Cypher Text: " + cypherText);
+    	System.out.println("Decrypted Text: " + decryptedText);
+    }
+
+
+    
 
 
 
@@ -240,6 +268,8 @@ public class CryptoWorker {
         }
         
         
+        
+
         public void printToStdOutAndToFile(String str) {
             System.out.println(str);
             Utility.appendStrToFile(this.getOutputDir() + "/log.txt", str+"\n");
@@ -1214,10 +1244,12 @@ public class CryptoWorker {
         }
 
         if (args.length == 1) {
+            CryptoWorker worker = new CryptoWorker();
             switch (args[0]) {
                 case "-h":
                     printHelp();
                     break;
+                    
                 case "--help":
                     printHelp();
                     break;
@@ -1230,7 +1262,14 @@ public class CryptoWorker {
                     printVersion();
                     break;
 
-
+                case "--test":
+                    worker.runTestsAndPrint();
+                	break;
+                
+                case "-t":
+                    worker.runTestsAndPrint();
+                	break;
+                	
                 default:
                     System.out.println("Invalid Args");
                     break;
@@ -1250,6 +1289,8 @@ public class CryptoWorker {
                 case "--encrypt":
                     System.out.println(worker.encryptStr(args[1], args[2]));
                     break;
+                    
+                    
 
                 default:
                     System.out.println("Invalid Args");
@@ -1258,6 +1299,28 @@ public class CryptoWorker {
             return;
         }
 
+        if (args.length == 4) {
+            CryptoWorker worker = new CryptoWorker();
+            switch (args[0]) {
+
+               
+                    
+                    //decryption stuff
+                    case "-d":
+                        System.out.println(worker.decryptStr(args[1], args[2], args[3]));
+                        break;
+
+                    case "--decrypt":
+                        System.out.println(worker.decryptStr(args[1], args[2], args[3]));
+                        break;    
+                    
+
+                default:
+                    System.out.println("Invalid Args");
+                    break;
+            }
+            return;
+        }
 
         System.out.println("Invalid Args");
         return;

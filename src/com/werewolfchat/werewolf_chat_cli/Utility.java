@@ -35,7 +35,7 @@ import java.util.Scanner;
 public class Utility {
 
 
-    public static final EncryptionParameters ENCRYPTION_PARAMS = EncryptionParameters.APR2011_439_FAST;
+    public static final EncryptionParameters ENCRYPTION_PARAMS = EncryptionParameters.EES1087EP2; //  EncryptionParameters.APR2011_439_FAST;
 
 
     public static final String torAddress = "http://pmbldnf4zyeb4esolfmfv2uzfzdcusgzvxwkg5r6fnm7vbunjk5gvfyd.onion/api/";
